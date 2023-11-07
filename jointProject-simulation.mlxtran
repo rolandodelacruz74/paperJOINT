@@ -1,0 +1,108 @@
+<DATAFILE>
+
+[FILEINFO]
+file='jointProject-data.csv'
+delimiter = comma
+header = {id, time, y, group, ytype, mdv}
+
+[CONTENT]
+id = {use=identifier}
+time = {use=time}
+y = {use=observation, name={y1, y2}, yname={'1', '2'}, type={continuous, event}}
+group = {use=covariate, type=categorical}
+ytype = {use=observationtype}
+
+<MODEL>
+
+[COVARIATE]
+input = group
+
+group = {type=categorical, categories={0, 1}}
+
+[INDIVIDUAL]
+input = {A_pop, omega_A, B_pop, omega_B, C_pop, omega_C, beta_pop, gamma_pop, omega_beta, omega_gamma, corr_C_A, corr_gamma_A, corr_gamma_C, group, beta_A_group_1, beta_B_group_1, d_pop, u_pop, corr_B_A, corr_C_B, corr_gamma_B, v_pop, beta_u_group_1, beta_beta_group_1}
+
+group = {type=categorical, categories={0, 1}}
+
+DEFINITION:
+A = {distribution=logNormal, typical=A_pop, covariate=group, coefficient={0, beta_A_group_1}, sd=omega_A}
+B = {distribution=logNormal, typical=B_pop, covariate=group, coefficient={0, beta_B_group_1}, sd=omega_B}
+C = {distribution=logNormal, typical=C_pop, sd=omega_C}
+beta = {distribution=logNormal, typical=beta_pop, covariate=group, coefficient={0, beta_beta_group_1}, sd=omega_beta}
+gamma = {distribution=logNormal, typical=gamma_pop, sd=omega_gamma}
+d = {distribution=logNormal, typical=d_pop, no-variability}
+u = {distribution=logNormal, typical=u_pop, covariate=group, coefficient={0, beta_u_group_1}, no-variability}
+v = {distribution=normal, typical=v_pop, no-variability}
+correlation = {level=id, r(B, A)=corr_B_A, r(C, A)=corr_C_A, r(gamma, A)=corr_gamma_A, r(C, B)=corr_C_B, r(gamma, B)=corr_gamma_B, r(gamma, C)=corr_gamma_C}
+
+[LONGITUDINAL]
+input = {a1_}
+
+file = 'model-simulation.txt'
+
+DEFINITION:
+y1 = {distribution=normal, prediction=E, errorModel=constant(a1_)}
+
+<FIT>
+data = {y2, y1}
+model = {Event, y1}
+
+<PARAMETER>
+A_pop = {value=4.431504489264634, method=MLE}
+B_pop = {value=0.6087098376265067, method=MLE}
+C_pop = {value=10.91223269636891, method=MLE}
+a1_ = {value=0.2546939339502013, method=MLE}
+beta_A_group_1 = {value=-0.5809607421024036, method=MLE}
+beta_B_group_1 = {value=1.544722257743692, method=MLE}
+beta_beta_group_1 = {value=0.3716426070970996, method=MLE}
+beta_pop = {value=0.0091721782157319, method=MLE}
+beta_u_group_1 = {value=0, method=MLE}
+corr_B_A = {value=0.534561516719155, method=MLE}
+corr_C_A = {value=0.5236738072859292, method=MLE}
+corr_C_B = {value=-0.2801840754558211, method=MLE}
+corr_gamma_A = {value=-0.8072818572260138, method=MLE}
+corr_gamma_B = {value=-0.8639343003311795, method=MLE}
+corr_gamma_C = {value=0.0725766463879519, method=MLE}
+d_pop = {value=2.926800927957092, method=MLE}
+gamma_pop = {value=0.0919404005220279, method=MLE}
+omega_A = {value=0.0018015921177791, method=MLE}
+omega_B = {value=0.1966170477909369, method=MLE}
+omega_C = {value=0.1972578200162506, method=MLE}
+omega_beta = {value=1.011215536073945, method=MLE}
+omega_gamma = {value=0.1729829533380977, method=MLE}
+u_pop = {value=1, method=MLE}
+v_pop = {value=-3, method=MLE}
+
+<MONOLIX>
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMean, conditionalMode })
+fim(run = false,method = StochasticApproximation)
+logLikelihood(method = ImportanceSampling)
+plotResult(method = {indfits, parameterdistribution, covariancemodeldiagnosis, covariatemodeldiagnosis, obspred, vpc, residualsscatter, residualsdistribution, randomeffects, blq, predictiondistribution, categorizedoutput, saemresults })
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'project19022021'
+nbchains = 3
+autochains = no
+
+POPULATION:
+exploratoryautostop = no
+smoothingautostop = no
+burniniterations = 10
+simulatedannealing = no
+simulatedannealingiterations = 450
+variability = decreasing
+
+INDIVIDUAL:
+nbsimulatedparameters = 20
+
+FIM:
+miniterations = 100
+maxiterations = 500
+
+[COMMENTS]
+; Joint model for pregnancy data
+

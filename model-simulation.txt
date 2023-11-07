@@ -1,0 +1,23 @@
+[LONGITUDINAL]
+input = { A, B, C, beta, gamma, u, v, d}
+
+EQUATION:
+E = A + B*exp(-beta*t) -C*exp(-gamma*t)
+h =exp(-u*E + v)*(t^d)
+
+ddt_H = h
+
+S = exp(-H)
+
+DEFINITION:
+Event = {type=event, 
+              hazard = h,
+           eventType=intervalCensored, 
+            intervalLength=10,
+             maxEventNumber=1
+}
+OUTPUT:
+output = {E, Event}
+
+table={S}
+
